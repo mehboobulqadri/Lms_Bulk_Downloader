@@ -1,0 +1,14 @@
+{
+  "name": "lms-downloader",
+  "version": "1.1.0",
+  "description": "Bulk-download all files from NUST LMS (Moodle) into an organised ZIP archive.",
+  "private": true,
+  "scripts": {
+    "setup": "curl -fsSL -o lib/jszip.min.js https://cdn.jsdelivr.net/npm/jszip/dist/jszip.min.js",
+    "lint": "web-ext lint --source-dir ."
+  },
+  "devDependencies": {
+    "web-ext": "^8.0.0"
+  },
+  "license": "MIT"
+}

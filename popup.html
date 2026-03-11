@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LMS Downloader</title>
+  <style>
+    /* ── Reset ── */
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 440px;
+      max-height: 560px;
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      font-size: 13px;
+      color: #0f172a;
+      background: #f8fafc;
+      overflow-y: auto;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: #fff;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .06);
+    }
+
+    .header-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: #fff;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .header h1 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .badge {
+      margin-left: auto;
+      font-size: 10px;
+      font-weight: 600;
+      background: #eff6ff;
+      color: #2563eb;
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+
+    /* ── States ── */
+    .state {
+      display: none;
+      padding: 40px 16px;
+      text-align: center;
+    }
+
+    .state.active {
+      display: block;
+    }
+
+    .spinner {
+      width: 32px;
+      height: 32px;
+      margin: 0 auto 14px;
+      border: 3px solid #f1f5f9;
+      border-top-color: #3b82f6;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .scanning-text {
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    .error-box {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+      padding: 14px;
+      border-radius: 10px;
+      margin-bottom: 14px;
+      font-size: 13px;
+      word-break: break-word;
+    }
+
+    .empty {
+      color: #64748b;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    /* ── File list ── */
+    #file-list {
+      padding: 10px;
+    }
+
+    .section-group {
+      margin-bottom: 10px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 12px;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      cursor: pointer;
+      user-select: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+
+    .section-header:hover {
+      border-color: #cbd5e1;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, .05);
+    }
+
+    .section-header.open {
+      border-radius: 8px 8px 0 0;
+      border-bottom: none;
+    }
+
+    .arrow {
+      font-size: 10px;
+      color: #94a3b8;
+      transition: transform .2s;
+    }
+
+    .arrow.collapsed {
+      transform: rotate(-90deg);
+    }
+
+    .section-name {
+      flex: 1;
+      font-weight: 600;
+      font-size: 13px;
+      color: #334155;
+    }
+
+    .count {
+      font-size: 11px;
+      font-weight: 600;
+      color: #64748b;
+      background: #f1f5f9;
+      padding: 1px 7px;
+      border-radius: 10px;
+    }
+
+    .section-files {
+      border: 1px solid #e2e8f0;
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .section-files.collapsed {
+      display: none;
+    }
+
+    .file-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px 7px 22px;
+      border-bottom: 1px solid #f1f5f9;
+      transition: background .12s;
+    }
+
+    .file-row:last-child {
+      border-bottom: none;
+    }
+
+    .file-row:hover {
+      background: #f8fafc;
+    }
+
+    input[type="checkbox"] {
+      width: 15px;
+      height: 15px;
+      accent-color: #2563eb;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .emoji {
+      font-size: 15px;
+    }
+
+    .fname {
+      flex: 1;
+      color: #475569;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .ftype {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #64748b;
+      background: #f1f5f9;
+      padding: 1px 6px;
+      border-radius: 5px;
+    }
+
+    /* ── Controls ── */
+    .controls {
+      position: sticky;
+      bottom: 0;
+      background: rgba(255, 255, 255, .92);
+      backdrop-filter: blur(6px);
+      border-top: 1px solid #e2e8f0;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .controls-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .controls-row.spread {
+      justify-content: space-between;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .15s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: #fff;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, .25);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, .35);
+    }
+
+    .btn-primary:active {
+      transform: none;
+    }
+
+    .btn-primary:disabled {
+      background: #94a3b8;
+      box-shadow: none;
+      cursor: default;
+      transform: none;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: #3b82f6;
+      padding: 6px 10px;
+    }
+
+    .btn-ghost:hover {
+      background: #eff6ff;
+    }
+
+    .sel-count {
+      font-size: 12px;
+      font-weight: 500;
+      color: #64748b;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="header">
+    <div class="header-icon">⬇</div>
+    <h1>LMS Downloader</h1>
+    <span class="badge">v1.1</span>
+  </div>
+
+  <div id="state-loading" class="state active">
+    <div class="spinner"></div>
+    <div class="scanning-text">Scanning page for files…</div>
+  </div>
+
+  <div id="state-error" class="state">
+    <div class="error-box" id="error-msg"></div>
+    <button class="btn-primary" id="btn-retry">↺ Retry</button>
+  </div>
+
+  <div id="state-empty" class="state">
+    <div class="empty">No downloadable files found.<br>Make sure you're on a course page.</div>
+  </div>
+
+  <div id="state-files" class="state">
+    <div id="file-list"></div>
+  </div>
+
+  <div class="controls" id="controls" style="display:none">
+    <div class="controls-row spread">
+      <div>
+        <button class="btn-ghost" id="btn-all">Select All</button>
+        <button class="btn-ghost" id="btn-none">Deselect</button>
+      </div>
+      <span class="sel-count" id="selected-count">0 selected</span>
+    </div>
+    <div class="controls-row">
+      <button class="btn-primary" id="btn-download" disabled>⬇ Download ZIP</button>
+    </div>
+  </div>
+
+  <script src="utils.js"></script>
+  <script src="storage.js"></script>
+  <script src="popup.js"></script>
+</body>
+
+</html>

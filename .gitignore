@@ -1,0 +1,17 @@
+# LMS Downloader — dev files (NOT part of the extension package)
+# The lib/ folder is intentionally excluded: jszip.min.js must be present
+# before loading unpacked. Run `npm run setup` to fetch it.
+
+# Dev-only directories
+ss/
+test/
+
+# Tooling
+node_modules/
+
+# OS noise
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+*.zip
