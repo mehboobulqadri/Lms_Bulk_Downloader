@@ -4,53 +4,55 @@ A Chromium extension that bulk-downloads files from NUST LMS (Moodle) and packag
 
 ## Features
 
-- 🔍 Scans course pages for all downloadable resources
-- 📂 Groups files by course section/week
-- ☑️ Select/deselect individual files
-- ⚡ Adaptive parallel downloads (starts at 3, scales up on fast networks, backs off on rate limits)
-- 🔁 Automatic retry with exponential back-off (up to 3 attempts per file)
-- 📦 Downloads as a single organized ZIP with filename deduplication
-- ⏸️ Pause / Resume / Cancel downloads seamlessly
-- 📊 Real-time progress, speed, and ETA
+- **Automated Scanning**: Instantly detects downloadable resources on course pages.
+- **Structured Output**: Automatically organizes files into directories by course section or week within the final ZIP archive.
+- **Adaptive Concurrency**: Manages parallel downloads and automatically throttles request rates to respect server limits (HTTP 429).
+- **Deduplication**: Resolves naming conflicts by intelligently renaming identical files within the same section.
+- **Customizable Selection**: Allows users to include or exclude specific files prior to downloading.
 
-## Installation & Setup
+## Installation
 
-### 1. Requirements
+*Note: The extension is currently pending approval on the Microsoft Edge Add-ons and Chrome Web Stores. In the interim, it can be installed manually.*
 
-- [Node.js](https://nodejs.org/) (for development and setup)
-- A Chromium-based browser (Chrome, Edge, Brave, etc.)
+### 1. Download the Extension
+1. Navigate to the [Releases page](../../releases/latest) on GitHub.
+2. Download the `.zip` file associated with the latest release (e.g., `lms-downloader-v1.2.0.zip`).
+3. Extract the contents of the ZIP archive to a folder on your computer.
 
-### 2. Clone & Setup
+### 2. Load into Browser
+
+**For Microsoft Edge:**
+1. Open Edge and navigate to `edge://extensions/`.
+2. Enable **Developer mode** (toggle located in the bottom left).
+3. Click **Load unpacked** (top right).
+4. Select the folder containing the extracted extension files.
+
+**For Google Chrome:**
+1. Open Chrome and navigate to `chrome://extensions/`.
+2. Enable **Developer mode** (toggle located in the top right).
+3. Click **Load unpacked** (top left).
+4. Select the folder containing the extracted extension files.
+
+## Usage
+
+1. Log in to your NUST LMS account and navigate to any course page.
+2. Click the LMS Downloader icon in your browser toolbar.
+3. Select the desired files from the list.
+4. Click **Download ZIP** to begin the packaging process.
+
+## Development
+
+To build the extension from source:
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/lms-downloader.git
 cd lms-downloader
 
-# Download the JSZip library dependency
-npm run build
+# Download the required JSZip dependency
+npm run setup
 ```
 
-### 3. Load into Browser
-
-1. Open your browser and navigate to the extensions page (e.g., `chrome://extensions`).
-2. Enable **Developer mode** (toggle in the top right corner).
-3. Click **Load unpacked**.
-4. Select the `lms-downloader` folder you just cloned.
-
-## Contributing
-
-1. Fork the repo
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request!
-
-When opening a Pull Request, the CI suite will automatically lint the extension manifest and files. To run this locally:
-
-```bash
-npm install
-npm run lint
-```
+Once the setup script completes, the repository folder can be loaded as an unpacked extension in your browser for testing and development.
 
 ## License
 
