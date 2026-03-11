@@ -166,5 +166,9 @@
     chrome.tabs.create({ url: chrome.runtime.getURL("downloader.html") });
   });
 
+  // Set version dynamically
+  const manifest = chrome.runtime.getManifest();
+  if (el("app-version")) el("app-version").textContent = `v${manifest.version}`;
+
   scan();
 })();

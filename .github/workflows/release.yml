@@ -1,0 +1,45 @@
+name: Release Extension
+
+on:
+  release:
+    types: [published]   # triggers when you publish a release on GitHub
+
+permissions:
+  contents: write        # needed to attach the ZIP to the release
+
+jobs:
+  package:
+    name: Package & attach ZIP
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download JSZip
+        run: |
+          mkdir -p lib
+          curl -fsSL -o lib/jszip.min.js \
+            https://cdn.jsdelivr.net/npm/jszip/dist/jszip.min.js
+
+      - name: Create extension ZIP
+        run: |
+          VERSION=$(jq -r '.version' manifest.json)
+          ZIP="lms-downloader-v${VERSION}.zip"
+
+          # Only include extension files — exclude dev/repo noise
+          zip -r "$ZIP" \
+            manifest.json \
+            background.js content.js \
+            popup.html popup.js \
+            downloader.html downloader.js \
+            utils.js storage.js \
+            icons/ lib/ \
+            --exclude "*.DS_Store" --exclude "Thumbs.db"
+
+          echo "ZIP=$ZIP" >> $GITHUB_ENV
+
+      - name: Attach ZIP to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.ZIP }}

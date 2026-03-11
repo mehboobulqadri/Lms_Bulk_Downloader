@@ -348,4 +348,9 @@
     console.error("[LMS Downloader]", err);
   });
 
+  // Set version dynamically
+  const manifest = chrome.runtime.getManifest();
+  const $version = $("app-version");
+  if ($version) $version.textContent = `v${manifest.version}`;
+
 })();
